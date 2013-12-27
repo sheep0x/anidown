@@ -42,7 +42,9 @@ I must say sorry for this. Sadly, the mercurial-git package (Wheezy) doesn't wor
 This repo is actually a Mercurial repo, and Git is only used as a tool to upload/download files to/from Github. That's why the Github repo also includes the .hg directory and the .hgignore file.
 
 Since the Git repo doesn't keep track of the actual commits, it is not supposed to be used as a collaborative tool. If you want to contribute:
+
 1. upload your code and send me a pull request, or
+
 2. send me a patch
 
 If you know how to fix the mercurial-git bug or have any good suggestions about a better workaround, please tell me. And sorry again for the inconvenience.
