@@ -1,1 +1,1 @@
-fixed ordered list in README.md
+fixed typos and improved README.md

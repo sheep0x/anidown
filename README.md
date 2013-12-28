@@ -25,9 +25,11 @@ The source code is completely legal. However, its usage might **NOT** be. Please
 
 Why Anidown?
 ------------
-Flash is really dirty. So does Flash players on Linux. Gnash is known to have problems with almost every website in China, and the *proprietary* ~~Adobe Flash Player~~ runs really slow. Conclusion: Linux don't really support Flash.
+Flash is really dirty. So does Flash players on Linux. Gnash is known to have problems with almost every website in China, and the *proprietary* ~~Adobe Flash Player~~ runs really slow. Conclusion: Linux doesn't really support Flash. (or more preciesely, Flash doesn't support Linux)
 
-So why don't we download all the videos and view them with our favorite media players? Grab Anidown and start enjoying the latest animes now!
+But most online video hosting websites in China rely on Flash...
+
+So why don't we download all the videos and view them offline with our favorite media players? Grab Anidown and start enjoying the latest animes now!
 
 Why not Dantalian.rb?
 ---------------------
@@ -46,5 +48,7 @@ Since the Git repo doesn't keep track of the actual commits, it is not supposed 
 1. upload your code and send me a pull request, or
 
 2. send me a patch
+
+I plan to move the repo to Bitbucket.org, so that we don't have to deal with Git.
 
 If you know how to fix the mercurial-git bug or have any good suggestions about a better workaround, please tell me. And sorry again for the inconvenience.
