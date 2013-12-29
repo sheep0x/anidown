@@ -17,6 +17,11 @@ Goal
 * fast (not achieved yet)
 * Unixy (not achieved yet)
 
+Usage
+-----
+build: `./make` (NOTE that this is a shell script, and has nothing to do with Make)
+run:   `cd bin; touch watchlist; ./watch.sh`
+
 Legal issues
 ------------
 Anidown is licensed under Apache License, Version 2.0.
