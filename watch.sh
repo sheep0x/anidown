@@ -16,8 +16,7 @@
 
 # watch for new episodes of animes in watchlist
 
-set -eE
-trap 'echo "watch.sh: An error occured at line $LINENO (please also check your watchlist)"; exit 2' ERR
+trap 'echo "watch.sh: An error occured at line $LINENO (please also check your watchlist)" >&2; exit 2' ERR
 exec < watchlist
 
 idle=1
@@ -31,6 +30,7 @@ do    season=$(line)
   if [[ ! -s tmp/video_list ]]; then
       echo "Can't find matching source (\`$anime' \`$season' \`$site')"
   else
+      trap - ERR
       ./download.sh "$anime/$season" < tmp/video_list
       case $? in
           0)
@@ -38,8 +38,10 @@ do    season=$(line)
           1)
               echo "Nothing new for \`$anime' \`$season'";;
           *)
+              echo 'watch.sh: An error occured when running downloader' >&2
               exit 2;;
       esac
+      trap 'echo "watch.sh: An error occured at line $LINENO (please also check your watchlist)" >&2; exit 2' ERR
   fi
 
   line > /dev/null || break

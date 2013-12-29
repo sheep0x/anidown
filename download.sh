@@ -129,7 +129,7 @@ fetch() {
   (( $# == 1 ))   # assertion
   mkdir -p "$1"
   say "fetching $1" >&3
-  local idle=1
+  local ep_idle=1
 
   declare -i cnt=0
   local url
@@ -144,13 +144,15 @@ fetch() {
       say "downloading part$cnt" >&2
     fi
 
-    idle=0
+    ep_idle=0
     say "URL: $url" >&3
     wget -U '' -O "$1/$cnt" "$url" 2>&4 || return 1
   done
 
-  (( idle )) && say "nothing done in $1" >&2
-  return 0
+  if (( ep_idle ))
+    then say "nothing done in $1" >&2
+    else idle=0
+  fi
 }
 
 
@@ -166,7 +168,6 @@ while L=$(line); do
     say "skipping episode $cnt (directory already exists)" >&2
     continue
   fi
-  idle=0
 
   say "doing episode $cnt" >&2
   until

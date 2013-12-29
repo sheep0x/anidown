@@ -15,7 +15,7 @@ Goal
 ----
 * simple
 * fast (not achieved yet)
-* Unixy
+* Unixy (not achieved yet)
 
 Legal issues
 ------------
@@ -37,11 +37,11 @@ I wrote a Ruby script called dantalian.rb, which does pretty much the same thing
 
 Don't worry, I'm working on dantalian.rb to turn it into a frontend of Anidown. So you can get your easy-to-use interactive downloader back within a month or so.
 
-Why the repo contains Mercurial files?
---------------------------------------
-I must say sorry for this. Sadly, the mercurial-git package (Wheezy) doesn't work so well for me, so I have to put up with different SCMs.
+This repo is a mirror
+---------------------
+Sadly, the mercurial-git package (Wheezy) doesn't work so well for me, so I have to put up with different SCMs.
 
-This repo is actually a Mercurial repo, and Git is only used as a tool to upload/download files to/from Github. That's why the Github repo also includes the .hg directory and the .hgignore file.
+This repo is actually a Mercurial repo, and Git is only used as a tool to upload/download files to/from Github. That's why the commit history doesn't make sense.
 
 Since the Git repo doesn't keep track of the actual commits, it is not supposed to be used as a collaborative tool. If you want to contribute:
 
@@ -49,6 +49,6 @@ Since the Git repo doesn't keep track of the actual commits, it is not supposed 
 
 2. send me a patch
 
-I plan to move the repo to Bitbucket.org, so that we don't have to deal with Git.
+I plan to move the repo to Bitbucket.org, so that things will get easier.
 
-If you know how to fix the mercurial-git bug or have any good suggestions about a better workaround, please tell me. And sorry again for the inconvenience.
+If you know how to fix the mercurial-git bug or have any good suggestions about a better workaround, please tell me. Sorry for the inconvenience.
