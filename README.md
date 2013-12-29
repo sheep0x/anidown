@@ -20,6 +20,7 @@ Goal
 Usage
 -----
 build: `./make` (NOTE that this is a shell script, and has nothing to do with Make)
+
 run:   `cd bin; touch watchlist; ./watch.sh`
 
 Legal issues

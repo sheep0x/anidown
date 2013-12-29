@@ -16,21 +16,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 =end
 
-params = []
-
 url = String.new # make it global
+params = []
 
 # be careful. there could be another form for get_m3u.php
 $stdin.read.scan /<form name="mform".*?<\/form>/m do |form|
-  # TODO 这句应该有更好的写法
-  # TODO 为什么这里不能用{|u| url,=u}？
-  form.scan /action="(.*?)"/ do |u| url,=u end
+  form.scan(/action="(.*?)"/){ |u| url,=u }
   form.scan /<input .*? name="(.*?)" value="(.*?)">/ do |param|
     params << "#{param[0]}=#{`bash -c './escape <<< "#{param[1]}"'`}"
-    # 目测默认的shell是sh, 所以这句不能用: params << "#{param[0]}=#{`./escape <<< "#{param[1]}";`}"
   end
 end
 
-url="#{url}?#{params.join('&')}"
-
+url = url + '?' + params.join('&')
 puts url

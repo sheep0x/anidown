@@ -31,7 +31,7 @@ do    season=$(line)
       echo "Can't find matching source (\`$anime' \`$season' \`$site')"
   else
       trap - ERR
-      ./download.sh "$anime/$season" < tmp/video_list
+      ./dwrapper.sh "$anime/$season" < tmp/video_list
       case $? in
           0)
               idle=0;;

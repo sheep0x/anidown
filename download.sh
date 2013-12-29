@@ -14,11 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# 虽然在不断完善，但是现阶段仍然只是粗糙的hack，所以代码质量比较低
-# 具体细节参考以前的代码（dump.sh, dantalian.rb, etc）
-# no CWD checking
-# 仅针对iqiyi和youku，其他网站现在处理不了，但是应该是同理
-
 # convention:
 # &1 - result
 # &2 - report
@@ -29,23 +24,11 @@
 set -eE
 trap 'echo "download.sh: An error occured at line $LINENO" >&2; exit 2' ERR
 
-# TODO parse ARGV
-loglevel=1
-#logfile=/dev/null
-logfile=log
-switches=s
-path=output/$1
+(( $# == 2 ))   # assertion
 
+switches=$1
+path=$2
 mkdir -p tmp
-
-exec 5>>$logfile
-case $loglevel in
-  0) exec 4>&5 3>&5 2>&5;;
-  1) exec 4>&5 3>&5;;
-  2) exec 4>&5 3>&2;;
-  3) exec 4>&2 3>&2;;
-esac
-exec 5>&-
 
 
 

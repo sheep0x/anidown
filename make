@@ -1,18 +1,21 @@
 #! /usr/bin/env bash
 
-set -eEv
+# XXX file names should not contain ws
+
+set -eE
 mkdir -p bin
 
-gcc -O2 -Wall -o bin/escape     escape.c
-cp  download.sh     bin/download.sh
-cp  qscan_form.rb   bin/qscan_form.rb
-cp  scan_form.rb    bin/scan_form.rb
-cp  scan_source.rb  bin/scan_source.rb
-cp  watch.sh        bin/watch.sh
-cp  LICENSE         bin/LICENSE
+for f in *.c
+  do gcc -O2 -Wall -o "bin/${f%.*}" "$f"; done
 
-set +v
+for f in *.sh *.rb; do
+  cp "$f" bin/"$f"
+  chmod u+x bin/"$f"
+done
+
+cp LICENSE bin/LICENSE
+
 # workaround for Debian users in some regions
 [[ $(lsb_release -i) =~ Debian ]] && sed -i 's/\(^[^#].*wget\)/\1 -4/g' bin/*.{sh,rb}
 
-wc download.sh escape.c make qscan_form.rb scan_form.rb scan_source.rb watch.sh
+wc *.sh *.rb *.c make
