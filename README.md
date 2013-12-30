@@ -24,6 +24,7 @@ build: `./make` (NOTE that this is a shell script and has nothing to do with Mak
 run:   `cd bin; touch watchlist; ./watch.sh`
 
 watchlist syntax:
+
         anime1
         season1
         site1
@@ -38,7 +39,7 @@ watchlist syntax:
         seasonN
         siteN
 
-There must be a empty line between adjacent items.
+(Note: There must be a empty line between adjacent items.)
 
 Legal issues
 ------------
