@@ -95,13 +95,14 @@ parseVideo() {
       # tmp/iqiyi_list is for debugging use
       sed -n 's/^<C>\(.*\)/\1/p' tmp/data | tee tmp/iqiyi_list | parseIqiyi
       ;;
-    *youku*|*letv*|*56.com*)
+    *youku*|*letv*|*56.com*|*funshion*|*qq.com*)
       # `*youku*' is for both youku and tudou
       sed -n 's/^<U>\(.*\)/\1/p' tmp/data
       ;;
     *)
       # not implemented yet
-      false
+      say 'source site not supported yet, exiting' >&2
+      exit 2
       ;;
   esac
 }
@@ -112,24 +113,28 @@ fetch() {
   (( $# == 1 ))   # assertion
   mkdir -p "$1"
   say "fetching $1" >&3
-  local ep_idle=1
+  local ep_idle=1 cont osize
 
   declare -i cnt=0
   local url
   while url=$(line); do
     cnt=cnt+1
-    if [[ $switches =~ f ]]; then
-      say "re-downloading part$cnt" >&2
-    elif [[ -e $1/$cnt ]]; then
-      say "skipping part$cnt (file already exists)" >&3
-      continue
+    local file=$1/$cnt
+    if [[ ! -e $file ]]; then
+      cont=''; say "downloading part$cnt" >&2
+    elif [[ $switches =~ f ]]; then
+      cont=''; say "re-downloading part$cnt" >&2
     else
-      say "downloading part$cnt" >&2
+      cont=-c; say "continue downloading part$cnt" >&2
+      osize=$(stat -c %s "$file")
     fi
 
-    ep_idle=0
     say "URL: $url" >&3
-    wget -U '' -O "$1/$cnt" "$url" 2>&4 || return 1
+    wget $cont -U '' -O "$file" "$url" 2>&4 || return 1
+    if [[ $cont == -c && $(stat -c %s "$file") == $osize ]]
+      then say "skipping part$cnt (file is already complete)" >&3
+      else ep_idle=0
+    fi
   done
 
   if (( ep_idle ))
