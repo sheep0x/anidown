@@ -19,9 +19,26 @@ Goal
 
 Usage
 -----
-build: `./make` (NOTE that this is a shell script, and has nothing to do with Make)
+build: `./make` (NOTE that this is a shell script and has nothing to do with Make)
 
 run:   `cd bin; touch watchlist; ./watch.sh`
+
+watchlist syntax:
+        anime1
+        season1
+        site1
+
+        anime2
+        season2
+        site2
+
+        ...
+
+        animeN
+        seasonN
+        siteN
+
+There must be a empty line between adjacent items.
 
 Legal issues
 ------------
