@@ -49,7 +49,7 @@ The source code is completely legal. However, its usage might **NOT** be. Please
 
 Why Anidown?
 ------------
-Flash is really dirty. So does Flash players on Linux. Gnash is known to have problems with almost every website in China, and the *proprietary* ~~Adobe Flash Player~~ runs really slow. Conclusion: Linux doesn't really support Flash. (or more preciesely, Flash doesn't support Linux)
+Flash is really dirty. So does Flash players on Linux. Gnash is known to have problems with almost every website in China, and the *proprietary* ~~Adobe Flash Player~~ runs really slow. Conclusion: Linux doesn't really support Flash. (or more precisely, Flash doesn't support Linux)
 
 But most online video hosting websites in China rely on Flash...
 
@@ -57,13 +57,13 @@ So why don't we download all the videos and view them offline with our favorite 
 
 Why not Dantalian.rb?
 ---------------------
-I wrote a Ruby script called dantalian.rb, which does pretty much the same thing as Anidown do. However, it is very user-friendly (translation: bloated and inefficient), so I decide to replace it with Anidown, which is much slimmer.
+I wrote a Ruby script called dantalian.rb, which does pretty much the same thing as Anidown does. However, it is very user-friendly (translation: bloated and inefficient), so I decided to replace it with Anidown, which is much slimmer.
 
-Don't worry, I'm working on dantalian.rb to turn it into a frontend of Anidown. So you can get your easy-to-use interactive downloader back within a month or so.
+Don't worry. I'm working on dantalian.rb to turn it into a frontend of Anidown. So you can get your easy-to-use interactive downloader back within a month or so.
 
 This repo is a mirror
 ---------------------
-Sadly, the mercurial-git package (Wheezy) doesn't work so well for me, so I have to put up with different SCMs.
+Sadly, the mercurial-git package (Wheezy) doesn't work for me, so I have to put up with different SCMs.
 
 This repo is actually a Mercurial repo, and Git is only used as a tool to upload/download files to/from Github. That's why the commit history doesn't make sense.
 
@@ -73,6 +73,8 @@ Since the Git repo doesn't keep track of the actual commits, it is not supposed 
 
 2. send me a patch
 
-I plan to move the repo to Bitbucket.org, so that things will get easier.
+Sorry for the inconvenience.
 
-If you know how to fix the mercurial-git bug or have any good suggestions about a better workaround, please tell me. Sorry for the inconvenience.
+I plan to move the repo to [Bitbucket.org](https://bitbucket.org/), so that things will get easier.
+
+If you know how to fix the mercurial-git bug or have any good suggestions about a better workaround, please tell me.
