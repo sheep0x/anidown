@@ -18,6 +18,7 @@
 
 trap 'echo "watch.sh: An error occured at line $LINENO (please also check your watchlist)" >&2; exit 2' ERR
 exec < watchlist
+mkdir -p tmp
 
 idle=1
 
@@ -31,7 +32,7 @@ do    season=$(line)
       echo "Can't find matching source (\`$anime' \`$season' \`$site')"
   else
       trap - ERR
-      ./dwrapper.sh "$anime/$season" < tmp/video_list
+      ./dwrapper.sh -c -o "output/$anime/$season" -L output/log < tmp/video_list
       case $? in
           0)
               idle=0;;

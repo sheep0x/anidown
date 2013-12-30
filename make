@@ -5,8 +5,7 @@
 set -eE
 mkdir -p bin
 
-for f in *.c
-  do gcc -O2 -Wall -o "bin/${f%.*}" "$f"; done
+shopt -s nullglob
 
 for f in *.sh *.rb; do
   cp "$f" bin/"$f"

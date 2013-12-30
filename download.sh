@@ -147,7 +147,7 @@ declare -i cnt=0
 while L=$(line); do
   cnt=cnt+1
 
-  if [[ ! $switches =~ [fs] && -d $path/$cnt ]]; then
+  if [[ ! $switches =~ [fc] && -d $path/$cnt ]]; then
     say "skipping episode $cnt (directory already exists)" >&2
     continue
   fi

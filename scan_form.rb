@@ -16,6 +16,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 =end
 
+def escape s
+  es = ''
+  s.each_char do |c|
+    es += case c
+            when /\w/, '.'  then c
+            when ' '        then '+'
+            else sprintf('%%%02X', c[0].ord)
+          end
+  end
+  es
+end
+
 url = String.new # make it global
 params = []
 
@@ -23,7 +35,7 @@ params = []
 $stdin.read.scan /<form name="mform".*?<\/form>/m do |form|
   form.scan(/action="(.*?)"/){ |u| url,=u }
   form.scan /<input .*? name="(.*?)" value="(.*?)">/ do |param|
-    params << "#{param[0]}=#{`bash -c './escape <<< "#{param[1]}"'`}"
+    params << param[0] + '=' + escape(param[1])
   end
 end
 
