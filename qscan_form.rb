@@ -1,4 +1,4 @@
-#! /usr/bin/env ruby1.8
+#! /usr/bin/env ruby
 
 =begin
 Copyright 2013 Chen Ruichao <linuxer.sheep.0x@gmail.com>
@@ -16,7 +16,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 =end
 
-$stdin.read.scan /<input type="hidden" name="inf" value="(.*?)"\/>/ do |urls,|
+unless String.method_defined?(:encode)
+  require 'iconv'
+  class String
+    def encode(to, from)
+      Iconv.conv(to, from, self)
+    end
+  end
+end
+
+$stdin.read.encode('UTF-8', 'GB2312').scan /<input type="hidden" name="inf" value="(.*?)"\/>/ do |urls,|
   puts urls.split('|')
   exit 0
 end

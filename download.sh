@@ -130,7 +130,7 @@ fetch() {
     fi
 
     say "URL: $url" >&3
-    wget $cont -U '' -O "$file" "$url" 2>&4 || return 1
+    wget $cont --progress=dot:mega -U '' -O "$file" "$url" 2>&4 || return 1
     if [[ $cont == -c && $(stat -c %s "$file") == $osize ]]
       then say "skipping part$cnt (file is already complete)" >&3
       else ep_idle=0

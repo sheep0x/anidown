@@ -1,4 +1,5 @@
-#! /usr/bin/env ruby1.8
+#! /usr/bin/env ruby
+# encoding: UTF-8
 
 =begin
 Copyright 2013 Chen Ruichao <linuxer.sheep.0x@gmail.com>
@@ -34,7 +35,8 @@ srcp = /<div class='linkpanels site(.*?)'>.*?<ul.*?((?:<li>.*?<\/li>)*?)\s*?<\/u
 vidp = /<li><a href='(.*?)'.*?>.*?<\/li>/m
 
 
-`wget -O tmp/search_result 'http://www.soku.com/t/nisearch/#{ARGV[0]}' 2>>log`
+redir=ARGV[3]       # nil if not supplied
+`wget -O tmp/search_result 'http://www.soku.com/t/nisearch/#{ARGV[0]}' #{redir}`
 $stderr.puts "scanning anime #{ARGV[0]}"
 open('tmp/search_result').read.scan(ssnp) do |title, s|
   $stderr.puts "found season #{title}"

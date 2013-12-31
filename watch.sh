@@ -20,19 +20,36 @@ trap 'echo "watch.sh: An error occured at line $LINENO (please also check your w
 exec < watchlist
 mkdir -p tmp
 
+for i in "$@"; do
+    if [[ $i == -h || $i == --help ]]; then
+        cat
+        exit 0
+    fi
+done << EOF
+Usage:
+    ./watch.sh (-h|--help)
+        Display this message.
+    ./watch.sh [OPTIONS]
+        Check new episodes in animes specified in watchlist.
+        All commandline arguments will be passed to dwrapper.sh.
+        For a list of options, see \`dwrapper.sh --help'.
+EOF
+
 idle=1
 
 while anime=$(line)
 do    season=$(line)
       site=$(line)
 
+  logfile=log/"$(date '+%F %T')_$anime"
+  [[ $logfile =~ / ]] && mkdir -p "${logfile%/*}"
   # bash will remove \n for us
-  ./scan_source.rb "$anime" "$season" "$site" 2>&1 >tmp/video_list
+  ./scan_source.rb "$anime" "$season" "$site" "2>&3" 3>>"$logfile" 2>&1 >tmp/video_list
   if [[ ! -s tmp/video_list ]]; then
       echo "Can't find matching source (\`$anime' \`$season' \`$site')"
   else
       trap - ERR
-      ./dwrapper.sh -c -o "output/$anime/$season" -L output/log < tmp/video_list
+      ./dwrapper.sh -o "output/$anime/$season" -L "$logfile" "$@" < tmp/video_list
       case $? in
           0)
               idle=0;;

@@ -42,7 +42,7 @@ Usage: ./dwrapper.sh [OPTIONS]
 -v --verbose
         Print detailed progress to stderr.
 -V --very-verbose
-        Verbose output plus wget output.
+        Verbose output plus Wget output.
 -L --logfile FILE
         Append log (anything not printed to stderr) to FILE.
 -O --overwrite-log
@@ -109,8 +109,8 @@ done
 # ==================== output redirections ====================
 [[ $logfile =~ / ]] && mkdir -p "${logfile%/*}"
 if [[ $logIOflag == w ]]
-  then exec 5>$logfile
-  else exec 5>>$logfile
+  then exec 5>"$logfile"
+  else exec 5>>"$logfile"
 fi
 case $verbosity in
   0) exec 4>&5 3>&5 2>&5;;

@@ -1,4 +1,4 @@
-#! /usr/bin/env ruby1.8
+#! /usr/bin/env ruby
 
 =begin
 Copyright 2013 Chen Ruichao <linuxer.sheep.0x@gmail.com>
@@ -16,6 +16,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 =end
 
+unless String.method_defined?(:encode)
+  require 'iconv'
+  class String
+    def encode(to, from)
+      Iconv.conv(to, from, self)
+    end
+  end
+end
+
+# c[0].ord is for Ruby1.8/1.9 compatibility
 def escape s
   es = ''
   s.each_char do |c|
@@ -32,7 +42,7 @@ url = String.new # make it global
 params = []
 
 # be careful. there could be another form for get_m3u.php
-$stdin.read.scan /<form name="mform".*?<\/form>/m do |form|
+$stdin.read.encode('UTF-8', 'GB2312').scan /<form name="mform".*?<\/form>/m do |form|
   form.scan(/action="(.*?)"/){ |u| url,=u }
   form.scan /<input .*? name="(.*?)" value="(.*?)">/ do |param|
     params << param[0] + '=' + escape(param[1])
