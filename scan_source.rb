@@ -36,7 +36,7 @@ vidp = /<li><a href='(.*?)'.*?>.*?<\/li>/m
 
 
 redir=ARGV[3]       # nil if not supplied
-`wget -O tmp/search_result 'http://www.soku.com/t/nisearch/#{ARGV[0]}' #{redir}`
+`wget -O tmp/search_result 'http://www.soku.com/t/nisearch/#{ARGV[0]}' 2>> '#{redir}'`
 $stderr.puts "scanning anime #{ARGV[0]}"
 open('tmp/search_result').read.scan(ssnp) do |title, s|
   $stderr.puts "found season #{title}"

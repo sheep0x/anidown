@@ -44,7 +44,7 @@ do    season=$(line)
   logfile=log/"$(date '+%F %T')_$anime"
   [[ $logfile =~ / ]] && mkdir -p "${logfile%/*}"
   # bash will remove \n for us
-  ./scan_source.rb "$anime" "$season" "$site" "2>&3" 3>>"$logfile" 2>&1 >tmp/video_list
+  ./scan_source.rb "$anime" "$season" "$site" "$logfile" 2>&1 >tmp/video_list
   if [[ ! -s tmp/video_list ]]; then
       echo "Can't find matching source (\`$anime' \`$season' \`$site')"
   else

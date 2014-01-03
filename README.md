@@ -23,6 +23,8 @@ build: `./make` (NOTE that this is a shell script and has nothing to do with Mak
 
 run:   `cd bin; touch watchlist; ./watch.sh`
 
+(Note: currently we have to make sure that CWD is the directory where watch.sh lies. We'll soon be able to call it from other CWD, or install it system-wide, though.)
+
 watchlist syntax:
 
         anime1
