@@ -2,7 +2,7 @@
 # encoding: UTF-8
 
 =begin
-Copyright 2013 Chen Ruichao <linuxer.sheep.0x@gmail.com>
+Copyright 2013, 2014 Chen Ruichao <linuxer.sheep.0x@gmail.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
