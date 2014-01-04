@@ -30,9 +30,11 @@ sn = {
 # season pattern
 ssnp = /<div class="G">.*?title="(.*?)".*?<div class="T">(.*?)<!--T end-->/m
 # source pattern
-srcp = /<div class='linkpanels site(.*?)'.*?>.*?<ul.*?>(.*?)<\/ul>/m
+srcp = /<div class='linkpanels site(.*?)'.*?>.*?(<ul class=.linkpanel.*?)<\/div>/m
+grpp = /<ul.*?id="group\d+".*?>(.*?)<\/ul>/m
 # video pattern
-vidp = /<li><a href='(.*?)'.*?>.*?<\/li>|<li class="disabled">.*?<\/li>/m
+vidp = /<li(?: class="(?:ex|xe)")?><a href='(.*?)'.*?>(\d+?)<\/a><\/li>/m
+novidp = /<li class="disabled(?: ex)?">(\d+?)<\/li>/m
 
 
 redir=ARGV[3]       # nil if not supplied
@@ -45,6 +47,11 @@ open('tmp/search_result').read.scan(ssnp) do |title, s|
     site = site.to_i
     $stderr.puts "found source #{sn[site]}(id: #{site})"
     next if sn[site] != ARGV[2]
-    w.scan(vidp) {|v| puts v[0]}    # v[0] could be nil
+    result = Array.new
+    w.scan(grpp) do |g,|
+      g.scan(vidp) {|url, no| result[no.to_i-1]=url}
+      g.scan(novidp) {|no,|   result[no.to_i-1]=nil}
+    end
+    puts result
   end
 end
