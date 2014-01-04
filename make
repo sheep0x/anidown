@@ -8,6 +8,7 @@ mkdir -p bin
 shopt -s nullglob
 
 for f in *.sh *.rb; do
+  echo "copying $f"
   cp "$f" bin/"$f"
   chmod u+x bin/"$f"
 done

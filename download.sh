@@ -152,6 +152,11 @@ declare -i cnt=0
 while L=$(line); do
   cnt=cnt+1
 
+  if [[ -z $L ]]; then
+    say "skipping episode $cnt (URL not supplied)" >&3
+    continue
+  fi
+
   if [[ ! $switches =~ [fc] && -d $path/$cnt ]]; then
     say "skipping episode $cnt (directory already exists)" >&2
     continue
