@@ -60,6 +60,14 @@ parseIqiyi() {
   done
 }
 
+parseTudou() {
+  local L
+  while L=$(line); do
+    xget tmp/tudou_reply "$L"
+    sed -n 's,.*<f.*>\(http[^<]*\)</f>.*,\1,; s/&amp;/\&/g; p; q' tmp/tudou_reply
+  done
+}
+
 # assumption: qscan_form.rb and scan_form.rb never return 2
 parseVideo() {
   (( $# == 1 ))   # assertion
@@ -68,7 +76,7 @@ parseVideo() {
     then url=$(sed -e 's|^.*url=||;s|&.*$||' <<< "$url")
     else url=$(sed -e 's|%|%25|g;s|/|%2F|g;s|:|%3A|g;s|?|%3F|g;s|=|%3D|g;s|&|%26|g' <<< "$url")
   fi
-  url="http://www.flvcd.com/parse.php?kw=$url&format=super"
+  url="http://www.flvcd.com/parse.php?kw=$url&format=real"
 
   # a quick glance to see if we've got the URLs
   xget tmp/parse_page "$url"
@@ -95,12 +103,15 @@ parseVideo() {
       # tmp/iqiyi_list is for debugging use
       sed -n 's/^<C>\(.*\)/\1/p' tmp/data | tee tmp/iqiyi_list | parseIqiyi
       ;;
+    *tudou*)
+      # tmp/tudou_list is for debugging use
+      sed -n 's/^<C>\(.*\)/\1/p' tmp/data | tee tmp/tudou_list | parseTudou
+      ;;
     *youku*|*letv*|*56.com*|*funshion*|*qq.com*)
-      # `*youku*' is for both youku and tudou
+      # some videos are shared by youku and tudou
       sed -n 's/^<U>\(.*\)/\1/p' tmp/data
       ;;
     *)
-      # not implemented yet
       say 'source site not supported yet, exiting' >&2
       exit 2
       ;;

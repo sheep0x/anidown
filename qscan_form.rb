@@ -1,7 +1,7 @@
 #! /usr/bin/env ruby
 
 =begin
-Copyright 2013 Chen Ruichao <linuxer.sheep.0x@gmail.com>
+Copyright 2013, 2014 Chen Ruichao <linuxer.sheep.0x@gmail.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,16 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 =end
 
-unless String.method_defined?(:encode)
-  require 'iconv'
-  class String
-    def encode(to, from)
-      Iconv.conv(to, from, self)
-    end
-  end
-end
-
-$stdin.read.encode('UTF-8', 'GB2312').scan /<input type="hidden" name="inf" value="(.*?)"\/>/ do |urls,|
+$stdin.binmode.read.scan /<input type="hidden" name="inf" value="(.*?)"\/>/n do |urls,|
   puts urls.split('|')
   exit 0
 end
