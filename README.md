@@ -21,66 +21,78 @@ Usage
 ### configure Anidown
 `./make` (NOTE that this is a shell script and has nothing to do with Make)
 
-This script doesn't do much for now, so you can skip the configure step. After `./make` is run, all the programs we need will be put into bin/.
+After `./make` is run, all the programs we need will be put into bin/.
+
+This script doesn't do much for now, so you can skip the configure step.
 
 ### running Anidown
-Anidown provides two commandline interfaces: dwrapper.sh and watch.sh (dwrapper means ''downloader wrapper''). To invoke them, you can simply run `./dwrapper.sh blahblahblah` or `./watch.sh`. You can also include the path to Anidown in your search path:
-    export PATH="path/to/anidown:$PATH"
-    watch.sh
+Anidown provides two commandline interfaces: dwrapper.sh and watch.sh (dwrapper means ''downloader wrapper''). To invoke them, you can simply run `./dwrapper.sh` or `./watch.sh`. You can also include the path to Anidown in your search path:
+
+```shell
+export PATH="path/to/anidown:$PATH"
+watch.sh
+```
 
 Please note that there are also other scripts in the Anidown directory, which are not supposed to be invoked directly. This problem will hopefully be solved by a launcher script in upcoming updates.
 
 ### download a video
-    dwrapper.sh http://myurl
+```shell
+dwrapper.sh http://myurl
+```
 
-Note that we can download only one video at a time. Extra URLs will be considered invalid commandline arguments and Anidown will complain. This behavior is intentional, as it aviods [surprise](http://en.wikipedia.org/wiki/Principle_of_least_astonishment). If you want to download several videos in a row, read on to know how.
+Note that we can download only one video at a time. Extra URLs will be considered invalid commandline arguments and Anidown will complain. This behavior is intentional, as it [aviods inconsistent behavior](http://en.wikipedia.org/wiki/Principle_of_least_astonishment). If you want to download several videos in a row, see below.
 
 ### download a bunch of videos
-    dwrapper.sh < my_video_list
+```shell
+dwrapper.sh < my_video_list
+```
 
-If no URL is given in commandline arguments, Anidown will read from stdin a list of videos to be downloaded. Each line contains exactly one URL. Empty lines will not be downloaded, but they *DO* affect the numbering of output directories. This annoying behavior will be changed in the future.
+If no URL is given in commandline arguments, Anidown will read from stdin a list of videos to be downloaded. Each line contains exactly one URL. Empty lines will not be downloaded, but they *DO* affect the numbering of output directories. This annoying behavior is necessary for watch.sh to work correctly, but it will be changed in the future.
 
 ### download an anime
 Currently Anidown doesn't provide any direct way to download animes automatically, but we do provide a way to do it indirectly. See below for the usage of watch.sh.
 
 ### stay tuned for ongoing animes
-    editor watchlist
-    watch.sh
+```shell
+editor watchlist
+watch.sh
+```
 
-watch.sh will read a list of seasons from watchlist, and download all new episodes automatically.
+Everytime you run watch.sh, it will read a list of seasons from watchlist, and download all new episodes automatically. (Hint: you can make it a cron job if you like)
 
 Note that the watchlist file should be placed in CWD, not in the Anidown directory.
 
 watchlist syntax:
 
-        anime1
-        season1
-        site1
+    anime1
+    season1
+    site1
 
-        anime2
-        season2
-        site2
+    anime2
+    season2
+    site2
 
-        ...
+    ...
 
-        animeN
-        seasonN
-        siteN
+    animeN
+    seasonN
+    siteN
 
 (Note: There must be a empty line between adjacent items.)
 (Note also: The current version requires you to give a season name that exactly matches the HTML source. So make sure that you didn't forget any spaces)
 
 ### commandline arguments
 Here are some frequently used options. Run `dwrapper.sh --help` or `watch.sh --help` for a complete list of commandline arguments.
--o PATH save videos in PATH instead of CWD
--c      try to continue downloading (by default, Anidown skips existing files/directories)
--q      suppress progress report
--L FILE save log to FILE
+
+-o PATH | save videos in PATH instead of CWD
+-c      | try to continue downloading (by default, Anidown skips existing files/directories)
+-q      | suppress progress report
+-L FILE | save log to FILE
 
 ### exit status
-0 means Anidown finished its job and exited successfully
-1 means Anidown did nothing useful, but exited successfully (so we can do things like `watch.sh && echo 'new episodes found!'`)
-2 means something goes wrong
+0 | means Anidown finished its job and exited successfully
+1 | means Anidown did nothing useful, but exited successfully (so we can do things like `watch.sh && echo 'new episodes found!'`)
+2 | means something goes wrong
 
 Misc notes
 ----------
