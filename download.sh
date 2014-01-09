@@ -18,16 +18,17 @@
 # &1 - result
 # &2 - report
 # &3 - log
-# &4 - log (more verbose, only wget outputs go here)
+# &4 - log (more verbose, almost only wget outputs go here)
 
 #set -x
 set -eE
 trap 'echo "download.sh: An error occured at line $LINENO" >&2; exit 2' ERR
 
-(( $# == 2 ))   # assertion
+(( $# == 3 ))   # assertion
 
 switches=$1
 path=$2
+videourl=$3
 mkdir -p tmp
 
 
@@ -78,14 +79,15 @@ parseVideo() {
   fi
   url="http://www.flvcd.com/parse.php?kw=$url&format=real"
 
-  # a quick glance to see if we've got the URLs
   xget tmp/parse_page "$url"
+
+  # a quick glance to see if we've got the URLs
   say 'trying simple resolution' >&3
-  ./qscan_form.rb < tmp/parse_page && return
+  qscan_form.rb < tmp/parse_page && return
 
   say 'trying general resolution' >&3
   until
-    local xdown_redir_url=$(./scan_form.rb < tmp/parse_page)
+    local xdown_redir_url=$(scan_form.rb < tmp/parse_page)
     xget tmp/xdown_redir "$xdown_redir_url"
     (( $(cat tmp/xdown_redir | wc -c) > 84 ))
   do
@@ -120,11 +122,12 @@ parseVideo() {
 
 
 # return 1 when failed (usually because the resolved URLs expired)
+# otherwise return 0, even if we didn't do anything
 fetch() {
   (( $# == 1 ))   # assertion
   mkdir -p "$1"
   say "fetching $1" >&3
-  local ep_idle=1 cont osize
+  local cont osize
 
   declare -i cnt=0
   local url
@@ -144,46 +147,29 @@ fetch() {
     wget $cont --progress=dot:mega -U '' -O "$file" "$url" 2>&4 || return 1
     if [[ $cont == -c && $(stat -c %s "$file") == $osize ]]
       then say "skipping part$cnt (file is already complete)" >&3
-      else ep_idle=0
+      else idle=0
     fi
   done
-
-  if (( ep_idle ))
-    then say "nothing done in $1" >&2
-    else idle=0
-  fi
 }
 
 
 
 
+if [[ ! $switches =~ [fc] && -d $path ]]; then
+  say "nothing done for $path (directory already exists)" >&2
+  exit 1
+fi
+
 idle=1
-
-declare -i cnt=0
-while L=$(line); do
-  cnt=cnt+1
-
-  if [[ -z $L ]]; then
-    say "skipping episode $cnt (URL not supplied)" >&3
-    continue
-  fi
-
-  if [[ ! $switches =~ [fc] && -d $path/$cnt ]]; then
-    say "skipping episode $cnt (directory already exists)" >&2
-    continue
-  fi
-
-  say "doing episode $cnt" >&2
-  until
-    parseVideo "$L" > tmp/file_list
-    say 'resolution done' >&3
-    fetch "$path/$cnt" < tmp/file_list
-  do
-    say 'download failed, resolving again' >&2
-  done
-  say "episode $cnt done"$'\n\n' >&2
+until
+  parseVideo "$videourl" > tmp/file_list
+  say 'resolution done' >&3
+  fetch "$path" < tmp/file_list
+do
+  say 'download failed, resolving again' >&2
 done
 
+(( idle )) && say "nothing done for $path (files are already complete)" >&2
 exit $idle
 
 # vim: sw=2 sts=2

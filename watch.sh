@@ -27,13 +27,16 @@ for i in "$@"; do
     fi
 done << EOF
 Usage:
-    ./watch.sh (-h|--help)
+    watch.sh (-h|--help)
         Display this message.
-    ./watch.sh [OPTIONS]
+    watch.sh [OPTIONS]
         Check new episodes in animes specified in watchlist.
         All commandline arguments will be passed to dwrapper.sh.
         For a list of options, see \`dwrapper.sh --help'.
 EOF
+
+# XXX we don't handle relative path, so be careful not to cd
+[[ $0 =~ / ]] && export PATH="${0%/*}:$PATH"
 
 idle=1
 
@@ -44,12 +47,12 @@ do    season=$(line)
   logfile=log/"$(date '+%F %T')_$anime"
   [[ $logfile =~ / ]] && mkdir -p "${logfile%/*}"
   # bash will remove \n for us
-  ./scan_source.rb "$anime" "$season" "$site" "$logfile" 2>&1 >tmp/video_list
+  scan_source.rb "$anime" "$season" "$site" "$logfile" 2>&1 >tmp/video_list
   if [[ ! -s tmp/video_list ]]; then
       echo "Can't find matching source (\`$anime' \`$season' \`$site')"
   else
       trap - ERR
-      ./dwrapper.sh -o "output/$anime/$season" -L "$logfile" "$@" < tmp/video_list
+      dwrapper.sh -o "output/$anime/$season" -L "$logfile" "$@" < tmp/video_list
       case $? in
           0)
               idle=0;;

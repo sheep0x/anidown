@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# Copyright 2013 Chen Ruichao <linuxer.sheep.0x@gmail.com>
+# Copyright 2013, 2014 Chen Ruichao <linuxer.sheep.0x@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,10 @@ path=.
 
 # ==================== info ====================
 printHelp() { cat; } << EOF
-Usage: ./dwrapper.sh [OPTIONS]
+Usage: dwrapper.sh [OPTIONS] [URL]
+
+Download a video from URL. If URL is omitted, read a list of videos from stdin
+and download them.
 
 -h --help
         Display this message.
@@ -61,6 +64,8 @@ abort() {
   printHelp
   exit 2
 } >&2
+
+declare batch=1 url
 
 while (($#)); do
   case "$1" in
@@ -100,8 +105,13 @@ while (($#)); do
       logfile=${1#*=};;
     -O|--overwrite-log)
       logIOflag=w;;
-    -A|--append-log-log)
+    -A|--append-log)
       logIOflag=a;;
+    *)
+      # there's no need to handle ``--''
+      (( batch == 0 )) && abort
+      batch=0
+      url=$1
   esac
   shift
 done
@@ -121,17 +131,14 @@ esac
 exec 5>&-
 
 # ==================== invoke downloader ====================
-# use absolute path, because we'll chdir later
-mkdir -p "$path"
-cd "$path"
-path=$PWD
-
-# XXX $0 must contain at least one slash(/)
-cd - > /dev/null
-cd "${0%/*}"
+# XXX we don't handle relative path, so be careful not to cd
+[[ $0 =~ / ]] && export PATH="${0%/*}:$PATH"
 
 set +eE
 trap - ERR
-./download.sh "$switches" "$path"
+if (( batch ))
+  then batch.sh    "$switches" "$path"
+  else download.sh "$switches" "$path" "$url"
+fi
 
 # vim: sw=2 sts=2
