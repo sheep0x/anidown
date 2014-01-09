@@ -79,20 +79,25 @@ watchlist syntax:
     siteN
 
 (Note: There must be a empty line between adjacent items.)
+
 (Note also: The current version requires you to give a season name that exactly matches the HTML source. So make sure that you didn't forget any spaces)
 
 ### commandline arguments
 Here are some frequently used options. Run `dwrapper.sh --help` or `watch.sh --help` for a complete list of commandline arguments.
 
+ option | meaning
+------- | ----------------------
 -o PATH | save videos in PATH instead of CWD
 -c      | try to continue downloading (by default, Anidown skips existing files/directories)
 -q      | suppress progress report
 -L FILE | save log to FILE
 
 ### exit status
-0 | means Anidown finished its job and exited successfully
-1 | means Anidown did nothing useful, but exited successfully (so we can do things like `watch.sh && echo 'new episodes found!'`)
-2 | means something goes wrong
+value | meaning
+----- | -----------------------
+0     | Anidown finished its job and exited successfully
+1     | Anidown did nothing useful, but exited successfully (so we can do things like `watch.sh && echo 'new episodes found!'`)
+2     | something went wrong
 
 Misc notes
 ----------
