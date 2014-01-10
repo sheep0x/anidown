@@ -119,9 +119,9 @@ I wrote a Ruby script called dantalian.rb, which does pretty much the same thing
 Don't worry. I'm working on dantalian.rb to turn it into a frontend of Anidown. So you can get your easy-to-use interactive downloader back within a month or so.
 
 ### This repo has multiple mirrors
-Anidown was originally hosted on Github. But sadly, the mercurial-git package (Wheezy) doesn't work for me, so I have to put up with different SCMs. The local repo is managed by Mercurial, and Git is only used as a tool to upload/download files to/from Github. This weird approach not only required extra labors, but also made the commit history nonsense.
+Anidown was originally hosted on [Github](https://github.com/sheep0x/anidown). But sadly, the mercurial-git package (Wheezy) doesn't work for me, so I have to put up with different SCMs. The local repo is managed by Mercurial, and Git is only used as a tool to upload/download files to/from Github. This weird approach not only required extra labors, but also made the commit history nonsense.
 
-Now the repo has moved to Bitbucket, but the Github is still updated for the conveniece of some people.
+Now the repo has moved to [Bitbucket](https://bitbucket.org/sheep0x/anidown), but the Github repo is still updated for the conveniece of some people.
 
 If you want to contribute, Mercurial+Bitbucket is of course recommended. However, if you don't want to set up a Bitbucket account just to submit a few changes, you can:
 
