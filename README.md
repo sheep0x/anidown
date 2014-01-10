@@ -25,7 +25,7 @@ After `./make` is run, all the programs we need will be put into bin/.
 
 This script doesn't do much for now, so you can skip the configure step.
 
-### running Anidown
+### run Anidown
 Anidown provides two commandline interfaces: dwrapper.sh and watch.sh (dwrapper means ''downloader wrapper''). To invoke them, you can simply run `./dwrapper.sh` or `./watch.sh`. You can also include the path to Anidown in your search path:
 
 ```shell
@@ -118,19 +118,15 @@ I wrote a Ruby script called dantalian.rb, which does pretty much the same thing
 
 Don't worry. I'm working on dantalian.rb to turn it into a frontend of Anidown. So you can get your easy-to-use interactive downloader back within a month or so.
 
-### This repo is a mirror
-Sadly, the mercurial-git package (Wheezy) doesn't work for me, so I have to put up with different SCMs.
+### This repo has multiple mirrors
+Anidown was originally hosted on Github. But sadly, the mercurial-git package (Wheezy) doesn't work for me, so I have to put up with different SCMs. The local repo is managed by Mercurial, and Git is only used as a tool to upload/download files to/from Github. This weird approach not only required extra labors, but also made the commit history nonsense.
 
-This repo is actually a Mercurial repo, and Git is only used as a tool to upload/download files to/from Github. That's why the commit history doesn't make sense.
+Now the repo has moved to Bitbucket, but the Github is still updated for the conveniece of some people.
 
-Since the Git repo doesn't keep track of the actual commits, it is not supposed to be used as a collaborative tool. If you want to contribute:
+If you want to contribute, Mercurial+Bitbucket is of course recommended. However, if you don't want to set up a Bitbucket account just to submit a few changes, you can:
 
-1. upload your code and send me a pull request, or
+1. upload your code to Github and send me a pull request, or
 
 2. send me a patch
 
-Sorry for the inconvenience.
-
-I plan to move the repo to [Bitbucket.org](https://bitbucket.org/), so that things will get easier.
-
-If you know how to fix the mercurial-git bug or have any good suggestions about a better workaround, please tell me.
+and I'll merge your changes manually.
