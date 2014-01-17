@@ -109,7 +109,7 @@ parseVideo() {
       # tmp/tudou_list is for debugging use
       sed -n 's/^<C>\(.*\)/\1/p' tmp/data | tee tmp/tudou_list | parseTudou
       ;;
-    *youku*|*letv*|*56.com*|*funshion*|*qq.com*)
+    *youku*|*letv*|*56.com*|*funshion*|*qq.com*|*joy.cn*)
       # some videos are shared by youku and tudou
       sed -n 's/^<U>\(.*\)/\1/p' tmp/data
       ;;
