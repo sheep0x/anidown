@@ -26,11 +26,11 @@ After `./make` is run, all the programs we need will be put into bin/.
 This script doesn't do much for now, so you can skip the configure step.
 
 ### run Anidown
-Anidown provides two commandline interfaces: dwrapper.sh and watch.sh (dwrapper means ''downloader wrapper''). To invoke them, you can simply run `./dwrapper.sh` or `./watch.sh`. You can also include the path to Anidown in your search path:
+Anidown provides two commandline interfaces: dwrapper.sh and watch.rb (dwrapper means ''downloader wrapper''). To invoke them, you can simply run `./dwrapper.sh` or `./watch.rb`. You can also include the path to Anidown in your search path:
 
 ```shell
 export PATH="path/to/anidown:$PATH"
-watch.sh
+watch.rb
 ```
 
 Please note that there are also other scripts in the Anidown directory, which are not supposed to be invoked directly. This problem will hopefully be solved by a launcher script in upcoming updates.
@@ -47,18 +47,22 @@ Note that we can download only one video at a time. Extra URLs will be considere
 dwrapper.sh < my_video_list
 ```
 
-If no URL is given in commandline arguments, Anidown will read from stdin a list of videos to be downloaded. Each line contains exactly one URL. Empty lines will not be downloaded, but they *DO* affect the numbering of output directories. This annoying behavior is necessary for watch.sh to work correctly, but it will be changed in the future.
+If no URL is given in commandline arguments, Anidown will read from stdin a list of videos to be downloaded. Each line contains exactly one URL. Empty lines will not be downloaded, but they *DO* affect the numbering of output directories. This annoying behavior is necessary for watch.rb to work correctly, but it will be changed in the future.
+
+Currently dwrapper.sh puts downloaded videos in numbered directories, rather than named directories. Named directories willbe supported in upcoming updates.
 
 ### download an anime
-Currently Anidown doesn't provide any direct way to download animes automatically, but we do provide a way to do it indirectly. See below for the usage of watch.sh.
+Currently Anidown doesn't provide any direct way to download animes automatically, but we do provide a way to do it indirectly. See below for the usage of watch.rb.
 
 ### stay tuned for ongoing animes
 ```shell
 editor watchlist
-watch.sh
+watch.rb
 ```
 
-Everytime you run watch.sh, it will read a list of seasons from watchlist, and download all new episodes automatically. (Hint: you can make it a cron job if you like)
+Everytime you run watch.rb, it will read a list of seasons from watchlist, and download all new episodes automatically. (Hint: you can make it a cron job if you like)
+
+Anidown doesn't really check if an episode is ''new'' in terms of date and time. It considers all videos that are available online but not downloaded yet to be ''new''. So if you tell Anidown to check for new episodes of an anime you've never downloaded, Anidown will consider all episodes to be ''new'' and thus download every available episode.
 
 Note that the watchlist file should be placed in CWD, not in the Anidown directory.
 
@@ -78,12 +82,12 @@ watchlist syntax:
     seasonN
     siteN
 
-(Note: There must be a empty line between adjacent items.)
+(Note: There must be at least one empty line between adjacent items.)
 
 (Note also: The current version requires you to give a season name that exactly matches the HTML source. So make sure that you didn't forget any spaces)
 
 ### commandline arguments
-Here are some frequently used options. Run `dwrapper.sh --help` or `watch.sh --help` for a complete list of commandline arguments.
+Here are some frequently used options. Run `dwrapper.sh --help` or `watch.rb --help` for a complete list of commandline arguments.
 
  option | meaning
 ------- | ----------------------
@@ -96,7 +100,7 @@ Here are some frequently used options. Run `dwrapper.sh --help` or `watch.sh --h
 value | meaning
 ----- | -----------------------
 0     | Anidown finished its job and exited successfully
-1     | Anidown did nothing useful, but exited successfully (so we can do things like `watch.sh && echo 'new episodes found!'`)
+1     | Anidown did nothing useful, but exited successfully (so we can do things like `watch.rb && echo 'new episodes found!'`)
 2     | something went wrong
 
 Misc notes
@@ -105,6 +109,9 @@ Misc notes
 Anidown is licensed under Apache License, Version 2.0.
 
 The source code is completely legal. However, its usage might **NOT** be. Please consult a lawyer if you are not living in Mainland China.
+
+### Compatibility
+Anidown is tested against Ruby 1.9.3 and Bash 4.2. Support for Ruby 1.8.7 has been dropped since 2014-01-27.
 
 ### Why Anidown?
 Flash is really dirty. So does Flash players on Linux. Gnash is known to have problems with almost every website in China, and the *proprietary* ~~Adobe Flash Player~~ runs really slow. Conclusion: Linux doesn't really support Flash. (or more precisely, Flash doesn't support Linux)
