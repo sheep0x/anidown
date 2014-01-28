@@ -155,11 +155,6 @@ fetch() {
 
 
 
-if [[ ! $switches =~ [fc] && -d $path ]]; then
-  say "nothing done for $path (directory already exists)" >&2
-  exit 1
-fi
-
 idle=1
 until
   parseVideo "$videourl" > tmp/file_list

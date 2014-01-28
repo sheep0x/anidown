@@ -62,8 +62,6 @@ watch.rb
 
 Everytime you run watch.rb, it will read a list of seasons from watchlist, and download all new episodes automatically. (Hint: you can make it a cron job if you like)
 
-Anidown doesn't really check if an episode is ''new'' in terms of date and time. It considers all videos that are available online but not downloaded yet to be ''new''. So if you tell Anidown to check for new episodes of an anime you've never downloaded, Anidown will consider all episodes to be ''new'' and thus download every available episode.
-
 Note that the watchlist file should be placed in CWD, not in the Anidown directory.
 
 watchlist syntax:
@@ -85,6 +83,19 @@ watchlist syntax:
 (Note: There must be at least one empty line between adjacent items.)
 
 (Note also: The current version requires you to give a season name that exactly matches the HTML source. So make sure that you didn't forget any spaces)
+
+Anidown doesn't really check if an episode is ''new'' in terms of date and time. It considers all videos that are available online but not downloaded yet to be ''new''. So if you tell Anidown to check for new episodes of an anime you've never downloaded, Anidown will consider all episodes to be ''new'' and thus download every available episode.
+
+Trick: If you want to download parts of an anime, you can create empty directories to fool Anidown. When neither --continue nor --force is supplied, Anidown skips existing directories even if they are empty. Say you want to download episodes 7~12:
+
+```shell
+$ cd output/myanime/season1
+$ mkdir -p {1..6} {13..100}     # suppose we're using Bash
+$ cd -
+...
+$ watch.rb
+...
+```
 
 ### commandline arguments
 Here are some frequently used options. Run `dwrapper.sh --help` or `watch.rb --help` for a complete list of commandline arguments.
@@ -111,7 +122,7 @@ Anidown is licensed under Apache License, Version 2.0.
 The source code is completely legal. However, its usage might **NOT** be. Please consult a lawyer if you are not living in Mainland China.
 
 ### Compatibility
-Anidown is tested against Ruby 1.9.3 and Bash 4.2. Support for Ruby 1.8.7 has been dropped since 2014-01-27.
+Anidown is tested against Ruby 1.9.3 and Bash 4.2. Support for Ruby 1.8.7 has been dropped since 2014-01-27. It's supposed to work with Ruby 1.9.1, but no test is performed yet.
 
 ### Why Anidown?
 Flash is really dirty. So does Flash players on Linux. Gnash is known to have problems with almost every website in China, and the *proprietary* ~~Adobe Flash Player~~ runs really slow. Conclusion: Linux doesn't really support Flash. (or more precisely, Flash doesn't support Linux)

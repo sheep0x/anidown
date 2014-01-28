@@ -33,19 +33,20 @@ sn = {
   117=>'爱财经',    126=>'4399',    129=>'豆瓣网',  130=>'风行',
   131=>'华数',      132=>'暴风影音'
 }
+sn.default = '未知'
 
 # season pattern
 ssnp = /<div class="G">.*?title="(.*?)".*?<div class="T">(.*?)<!--T end-->/m
 # source pattern
-srcp = /<div class='linkpanels site(.*?)'.*?>.*?(<ul class=.linkpanel.*?)<\/div>/m
-grpp = /<ul.*?id="group\d+".*?>(.*?)<\/ul>/m
+srcp = %r{<div class='linkpanels site(.*?)'.*?>.*?(<ul class=.linkpanel.*?)</div>}m
+grpp = %r{<ul.*?id="group\d+".*?>(.*?)</ul>}m
 # video pattern
-vidp = /<li(?: class="(?:ex|xe)")?><a href='(.*?)'.*?>(\d+?)<\/a>.*?<\/li>/m
-novidp = /<li class="disabled(?: ex)?">(\d+?)<\/li>/m
+vidp = %r{<li(?: class="(?:ex|xe)")?><a href='(.*?)'.*?>(\d+?)</a>.*?</li>}m
+novidp = %r{<li class="disabled(?: ex)?">(\d+?)</li>}m
 
 
-redir=ARGV[3]       # nil if not supplied
-`wget -O tmp/search_result 'http://www.soku.com/t/nisearch/#{ARGV[0]}' 2>> '#{redir}'`
+logfile = ARGV[3] || '/dev/null'
+system *%W{wget -O tmp/search_result http://www.soku.com/t/nisearch/#{ARGV[0]}}, :err=>[logfile, 'a']
 $stderr.puts "scanning anime #{ARGV[0]}"
 open('tmp/search_result').read.scan(ssnp) do |title, s|
   $stderr.puts "found season #{title}"
