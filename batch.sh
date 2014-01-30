@@ -31,6 +31,7 @@ path=$2
 say() { echo "[$(date '+%F %T')]" "$@"; }
 
 idle=1
+have_trouble=0
 
 declare -i cnt=0
 while L=$(line); do
@@ -54,6 +55,8 @@ while L=$(line); do
       idle=0;;
     1)
       ;; # this could happen when --continue is used
+    3)
+      have_trouble=1;;
     *)
       echo 'batch.sh: An error occured when running downloader' >&2
       exit 2;;
@@ -62,6 +65,7 @@ while L=$(line); do
   say "episode $cnt done"$'\n\n' >&2
 done
 
+(( have_trouble )) && exit 3
 exit $idle
 
 # vim: sw=2 sts=2

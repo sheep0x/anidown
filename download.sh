@@ -87,11 +87,15 @@ parseVideo() {
 
   say 'trying general resolution' >&3
   until
-    local xdown_redir_url=$(scan_form.rb < tmp/parse_page)
+    local xdown_redir_url
+    if ! xdown_redir_url=$(scan_form.rb < tmp/parse_page); then
+      say 'failed to resolve, please check if the video is valid' >&2
+      exit 3
+    fi
     xget tmp/xdown_redir "$xdown_redir_url"
     (( $(cat tmp/xdown_redir | wc -c) > 84 ))
   do
-    say 'failed to resolve, retrying' >&2
+    say 'failed to retrieve data, retrying' >&2
     xget tmp/parse_page "$url"
   done
   #local xdown_url=$(sed -n 's,.*\(http://www.flvcd.com/xdown.php?id=[0-9]\+\).*,\2\n,p' tmp/xdown_redir)
@@ -115,7 +119,7 @@ parseVideo() {
       ;;
     *)
       say 'source site not supported yet, exiting' >&2
-      exit 2
+      exit 3
       ;;
   esac
 }

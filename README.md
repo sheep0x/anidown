@@ -112,7 +112,19 @@ value | meaning
 ----- | -----------------------
 0     | Anidown finished its job and exited successfully
 1     | Anidown did nothing useful, but exited successfully (so we can do things like `watch.rb && echo 'new episodes found!'`)
-2     | something went wrong
+2     | something went wrong and Anidown broke down
+3     | something went wrong but it wasn't Anidown's fault (For example, the input is invalid)
+
+Common problems
+---------------
+### Anidown failed to resolve a video
+If you see something like `[2014-01-29 21:07:19] failed to resolve, please check if the video is valid`:
+
+1. View the video in your browser to check if it is valid. Sometimes the video could be invalid even if its corresponding page exists. For example, the video could be deleted.
+
+2. Goto [Flvcd.com](http://www.flvcd.com/) and check if it can resolve the video. If you are sure that the video is valid and Flvcd.com can't resolve it, it is a problem of Flvcd.com, not a bug of Anidown.
+
+3. If Flvcd.com works well, then you've probably found a bug of Anidown. Please tell me about it.
 
 Misc notes
 ----------

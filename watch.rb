@@ -41,6 +41,7 @@ end
 $0.include?(?/) && ENV['PATH'] = File.dirname($0) + ':' + ENV['PATH']
 
 idle = true
+have_trouble = false
 
 while $stdin.gets('')
   anime, season, site = $_.split("\n")
@@ -65,6 +66,8 @@ while $stdin.gets('')
         idle = false
       when 1
         puts "Nothing new for `#{anime}' `#{season}'"
+      when 3
+        have_trouble = true
       else
         $stderr.puts "#{$0}: An error occured when running downloader"
         exit 2
@@ -72,4 +75,4 @@ while $stdin.gets('')
   end
 end
 
-exit idle ? 1 : 0
+exit have_trouble ? 3 : idle ? 1 : 0

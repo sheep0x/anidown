@@ -32,8 +32,10 @@ end
 url = String.new # make it global
 params = []
 
+cnt=0
 # be careful. there could be another form for get_m3u.php
 $stdin.binmode.read.scan /<form name="mform".*?<\/form>/mn do |form|
+  cnt+=1
   form.scan(/action="(.*?)"/n){ |u| url,=u }
   form.scan /<input .*? name="(.*?)" value="(.*?)">/n do |param|
     params << param[0] + '=' + escape(param[1])
@@ -42,3 +44,4 @@ end
 
 url = url + '?' + params.join('&')
 puts url
+exit cnt==1
