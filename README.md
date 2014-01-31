@@ -120,7 +120,7 @@ Common problems
 ### Anidown failed to resolve a video
 If you see something like `[2014-01-29 21:07:19] failed to resolve, please check if the video is valid`:
 
-1. View the video in your browser to check if it is valid. Sometimes the video could be invalid even if its corresponding page exists. For example, the video could be deleted.
+1. View the video in your browser to check if it is valid and public. Anidown doesn't support private videos (videos that require a password to download). Sometimes the video could be invalid even if its corresponding page exists. For example, the video could be deleted.
 
 2. Goto [Flvcd.com](http://www.flvcd.com/) and check if it can resolve the video. If you are sure that the video is valid and Flvcd.com can't resolve it, it is a problem of Flvcd.com, not a bug of Anidown.
 
