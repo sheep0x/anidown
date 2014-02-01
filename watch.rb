@@ -52,7 +52,9 @@ while $stdin.gets('')
     FileUtils.mkdir_p( File.dirname(logfile) )
   #end
 
-  unless system('scan_source.rb', anime, season, site, logfile, :err=>:out, :out=>'tmp/video_list')
+  system *%W{wget -O tmp/search_result http://www.soku.com/t/nisearch/#{anime}}, :err=>[logfile, 'a']
+  puts "scanning anime #{anime}"
+  unless system('scan_source.rb', season, site, :in=>'tmp/search_result', :err=>:out, :out=>'tmp/video_list')
     $stderr.puts "#{$0}: An error occured when scanning source sites"
     exit 2
   end
