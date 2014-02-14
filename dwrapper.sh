@@ -65,7 +65,7 @@ abort() {
   exit 2
 } >&2
 
-declare batch=1 url
+# variable `url' is defined iff URL is supplied in cmdline arguments
 
 while (($#)); do
   case "$1" in
@@ -109,15 +109,14 @@ while (($#)); do
       logIOflag=a;;
     *)
       # there's no need to handle ``--''
-      (( batch == 0 )) && abort
-      batch=0
+      [[ -v url ]] && abort
       url=$1
   esac
   shift
 done
 
 # ==================== output redirections ====================
-[[ $logfile =~ / ]] && mkdir -p "${logfile%/*}"
+[[ $logfile =~ / ]] && mkdir -p -- "${logfile%/*}"
 if [[ $logIOflag == w ]]
   then exec 5>"$logfile"
   else exec 5>>"$logfile"
@@ -136,9 +135,9 @@ exec 5>&-
 
 set +eE
 trap - ERR
-if (( batch ))
-  then batch.sh    "$switches" "$path"
-  else download.sh "$switches" "$path" "$url"
+if [[ -v url ]]
+  then exec download.sh "$switches" "$path" "$url"
+  else exec batch.sh    "$switches" "$path"
 fi
 
 # vim: sw=2 sts=2

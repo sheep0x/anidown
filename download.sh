@@ -36,7 +36,7 @@ mkdir -p tmp
 
 
 
-# customize log format here
+# customize log format here (please do not put -- in echo's argv)
 #say() { echo "$@"; }
 say() { echo "[$(date '+%F %T')]" "$@"; }
 
@@ -73,10 +73,22 @@ parseTudou() {
 parseVideo() {
   (( $# == 1 ))   # assertion
   local url=$1
-  if [[ $url =~ .*redirect.* ]]
-    then url=$(sed -e 's|^.*url=||;s|&.*$||' <<< "$url")
-    else url=$(sed -e 's|%|%25|g;s|/|%2F|g;s|:|%3A|g;s|?|%3F|g;s|=|%3D|g;s|&|%26|g' <<< "$url")
+
+  # handle soku redirection
+  if [[ $url =~ redirect ]]; then
+    url=$(sed -e 's|^.*[?&]url=||;s|&.*$||' <<< "$url")
+    # unescape
+    url=$(sed -e 's|%2F|/|g;s|%3A|:|g;s|%3F|?|g;s|%3D|=|g;s|%26|&|g;s|%25|%|g' <<< "$url")
   fi
+
+  # turn http://www.funshion.com/subject/play/43280/25
+  # into http://www.funshion.com/vplay/m-43280.e-25
+  if [[ $url =~ ^'http://www.funshion.com/subject/play/'[[:digit:]]+/[[:digit:]]+$ ]]
+    then url=$(sed -e 's,^.*/\([0-9]\+\)/\([0-9]\+\)$,http://www.funshion.com/vplay/m-\1.e-\2,' <<< "$url")
+  fi
+
+  # escape the url
+  url=$(sed -e 's|%|%25|g;s|/|%2F|g;s|:|%3A|g;s|?|%3F|g;s|=|%3D|g;s|&|%26|g' <<< "$url")
   url="http://www.flvcd.com/parse.php?kw=$url&format=real"
 
   xget tmp/parse_page "$url"
@@ -129,7 +141,7 @@ parseVideo() {
 # otherwise return 0, even if we didn't do anything
 fetch() {
   (( $# == 1 ))   # assertion
-  mkdir -p "$1"
+  mkdir -p -- "$1"
   say "fetching $1" >&3
   local cont osize
 
@@ -139,18 +151,18 @@ fetch() {
     cnt=cnt+1
     local file=$1/$cnt
     if [[ ! -e $file ]]; then
-      cont=''; say "downloading part$cnt" >&2
+      cont=''; say "downloading block$cnt" >&2
     elif [[ $switches =~ f ]]; then
-      cont=''; say "re-downloading part$cnt" >&2
+      cont=''; say "re-downloading block$cnt" >&2
     else
-      cont=-c; say "continue downloading part$cnt" >&2
-      osize=$(stat -c %s "$file")
+      cont=-c; say "continue downloading block$cnt" >&2
+      osize=$(stat -c %s -- "$file")
     fi
 
     say "URL: $url" >&3
-    wget $cont --progress=dot:mega -U '' -O "$file" "$url" 2>&4 || return 1
-    if [[ $cont == -c && $(stat -c %s "$file") == $osize ]]
-      then say "skipping part$cnt (file is already complete)" >&3
+    wget $cont --progress=dot:mega -U '' -O "$file" -- "$url" 2>&4 || return 1
+    if [[ $cont == -c && $(stat -c %s -- "$file") == $osize ]]
+      then say "skipping block$cnt (file is already complete)" >&3
       else idle=0
     fi
   done

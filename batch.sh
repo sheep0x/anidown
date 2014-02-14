@@ -26,7 +26,7 @@ enableTrap
 switches=$1
 path=$2
 
-# customize log format here
+# customize log format here (please do not put -- in echo's argv)
 #say() { echo "$@"; }
 say() { echo "[$(date '+%F %T')]" "$@"; }
 

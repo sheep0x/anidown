@@ -34,7 +34,7 @@ module SokuScanner
   SiteName.default = '未知'
 
 
-  def self.scan_source(htmlsrc)
+  def self.scan(htmlsrc)
     # season pattern
     ssnp = /<div class="G">.*?title="(.*?)".*?<div class="T">(.*?)<!--T end-->/m
     # source pattern
@@ -73,7 +73,7 @@ end
 # XXX no error checking
 
 if __FILE__ == $0
-  res = SokuScanner.scan_source($stdin.read)
+  res = SokuScanner.scan($stdin.read)
   for s in res
     $stderr.puts "found season #{s.title}"
     next unless s.title == ARGV[0]
