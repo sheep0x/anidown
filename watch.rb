@@ -18,40 +18,84 @@ limitations under the License.
 
 # watch for new episodes of animes in watchlist
 
-# doesn't handle -q, -v, etc; doesn't handle ``--output -h''
+# ==================== handle argv ====================
 usage = <<EOF
-Usage:
-    #{$0} (-h|--help)
+Usage: #{$0} [OPTIONS]
+
+Check new episodes in animes specified in watchlist.
+
+-h --help
         Display this message.
-    #{$0} [OPTIONS]
-        Check new episodes in animes specified in watchlist.
-        All commandline arguments will be passed to dwrapper.sh.
-        For a list of options, see `dwrapper.sh --help'.
+-o --output PATH
+        Save videos in PATH instead of the default directory.
+-L --logpath PATH
+        Save logs in PATH instead of the default directory.
+--[no-]debug
+        Use ./tmp as the temporary directory, and don't remove it before exiting.
+        (by default, Anidown uses /tmp/anidown.XXXXXXXXXX)
+
+The following commandline arguments will be passed to dwrapper.sh:
+    -c --[no-]continue
+    -f --[no-]force
+    -q --quiet
+       --no-verbose
+    -v --verbose
+    -V --very-verbose
 EOF
 
 argv = []
 outpath = '.'
+logpath = nil
+debug=$DEBUG
+
 until ARGV.empty?
   v = ARGV.shift
-  argv << v
   case v
     when '-h', '--help'
       print usage
       exit 0
-    when '-L', '--logfile'
-      argv << ARGV.shift
-    when '-o', '--output'
-      argv.pop
-      outpath = ARGV.shift
-    when /(?<=^--output=).*$/
-      argv.pop
-      outpath = $&
+    when '--debug'
+      debug=true
+    when '--no-debug'
+      debug=false
+    when /(?<=^--output=).*$/,  '-o', '--output'
+      outpath = $& || ARGV.shift
+    when /(?<=^--logpath=).*$/, '-L', '--logpath'
+      logpath = $& || ARGV.shift
+    when *%w( -c --continue
+              -f --force
+              -q --quiet
+              -v --verbose
+              -V --very-verbose
+              --no-continue
+              --no-force
+              --no-verbose
+            )
+      argv << v
+    else
+      $stderr.puts "#{$0}: wrong arguments"
+      exit 2
   end
 end
 
+argv << (debug ? '--debug' : '--no-debug')
+
+# ==================== preparation ====================
 require 'fileutils'
-FileUtils.mkdir_p 'tmp'
-$stdin.reopen('watchlist')
+
+begin
+  if debug
+    FileUtils.mkdir_p 'tmp'
+    tmpd = 'tmp'
+  else
+    require 'tmpdir'
+    tmpd = Dir.mktmpdir('anidown-')
+    trap('EXIT') { FileUtils.rm_r(tmpd) }
+  end
+rescue
+  $stderr.puts "#{$0}: failed to create temporary directory"
+  exit 2
+end
 
 # XXX we don't handle relative path, so be careful not to cd
 if $0.include?(?/)
@@ -59,6 +103,9 @@ if $0.include?(?/)
   ENV['PATH'] = binpath + ':' + ENV['PATH']
   $: << binpath
 end
+
+# ==================== watchlist preparation ====================
+$stdin.reopen('watchlist')
 
 watched = Hash.new { |h, k| h[k] = {} }
 
@@ -81,19 +128,21 @@ def find_source(slist, season, site)
   nil
 end
 
+# ==================== real work ====================
 idle = true
 have_trouble = false
 
+FileUtils.mkdir_p(logpath) if logpath
+
 watched.each_pair do |anime, seasons|
   time = Time.now.strftime('%F %T')
-  logfile = "log/#{time}_#{anime}"
-  #if logfile.include? ?/
-    FileUtils.mkdir_p( File.dirname(logfile) )
-  #end
+  logfile = logpath ? "#{logpath}/#{time}_#{anime}" : '/dev/null'
 
-  system *%W{wget -O tmp/search_result http://www.soku.com/t/nisearch/#{anime}}, :err=>[logfile, 'a']
+  system *%W{wget -O #{tmpd}/search_result http://www.soku.com/t/nisearch/#{anime}}, :err=>[logfile, 'a']
+  exit 130 if $?.termsig == 2 # SIGINT
+
   puts "scanning anime #{anime}"
-  res = SokuScanner.scan(IO.read('tmp/search_result'))
+  res = SokuScanner.scan(IO.read("#{tmpd}/search_result"))
 
   seasons.each_pair do |season, site|
     unless urls = find_source(res, season, site)
@@ -104,17 +153,18 @@ watched.each_pair do |anime, seasons|
     puts "found source #{site}"
 
     # open(...).puts(...) won't flush the output
-    open('tmp/video_list', 'w') {|f| f.puts(urls)}
-    # doesn't handle -L and -O
-    system *%W{dwrapper.sh -o #{outpath}/#{anime}/#{season} -L #{logfile}}, *argv, :in=>'tmp/video_list', :err=>:out
+    open("#{tmpd}/video_list", 'w') {|f| f.puts(urls)}
+    system *%W{dwrapper.sh -o #{outpath}/#{anime}/#{season} -L #{logfile} -A}, *argv, :in=>"#{tmpd}/video_list", :err=>:out
 
-    case $?.exitstatus
+    case $?.exitstatus || $?.termsig+128
       when 0
         idle = false
       when 1
         puts "Nothing new for `#{anime}' `#{season}'"
       when 3
         have_trouble = true
+      when 130
+        exit 130 # SIGINT
       else
         $stderr.puts "#{$0}: An error occured when running downloader"
         exit 2

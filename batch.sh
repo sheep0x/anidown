@@ -17,7 +17,7 @@
 disableTrap() { set +eE; trap - ERR; }
 enableTrap() {
   set -eE
-  trap 'echo "batch.sh: An error occured at line $LINENO" >&2; exit 2' ERR
+  trap 'echo "batch.sh: An unexpected error occured at line $LINENO" >&2; exit 2' ERR
 }
 enableTrap
 
@@ -57,6 +57,8 @@ while L=$(line); do
       ;; # this could happen when --continue is used
     3)
       have_trouble=1;;
+    130)
+       kill -s SIGINT $$;;
     *)
       echo 'batch.sh: An error occured when running downloader' >&2
       exit 2;;

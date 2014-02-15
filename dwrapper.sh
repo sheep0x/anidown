@@ -15,7 +15,7 @@
 # limitations under the License.
 
 set -eE
-trap 'echo "dwrapper.sh: An error occured at line $LINENO" >&2; exit 2' ERR
+trap 'echo "dwrapper.sh: An unexpected error occured at line $LINENO" >&2; exit 2' ERR
 
 # ==================== default values ====================
 verbosity=1
@@ -52,8 +52,12 @@ and download them.
         Overwrite exsiting log file instead of appending to it.
 -A --append-log
         Append to existing log (usually used to override -O in default configurations).
+--debug
+        Use ./tmp as the temporary directory, and don't remove it before exiting.
+        (by default, Anidown uses /tmp/anidown.XXXXXXXXXX)
 --no-continue
 --no-force
+--no-debug
 --no-verbose
         Reset options (usually used to override default configurations).
 EOF
@@ -107,6 +111,10 @@ while (($#)); do
       logIOflag=w;;
     -A|--append-log)
       logIOflag=a;;
+    --debug)
+      switches+=d;;
+    --no-debug)
+      switches=${switches//d};;
     *)
       # there's no need to handle ``--''
       [[ -v url ]] && abort
@@ -131,7 +139,13 @@ exec 5>&-
 
 # ==================== invoke downloader ====================
 # XXX we don't handle relative path, so be careful not to cd
-[[ $0 =~ / ]] && export PATH="${0%/*}:$PATH"
+[[ $0 =~ / ]] && {
+  binpath=${0%/*}
+  if [[ ! $binpath =~ : ]] && binpath=$( (CDPATH='' cd -- "$binpath" && echo -n "$PWD") )
+    then export PATH="$binpath:$PATH"
+    else echo 'dwrapper.sh: failed to set PATH'; exit 2
+  fi
+}
 
 set +eE
 trap - ERR

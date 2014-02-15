@@ -20,17 +20,14 @@
 # &3 - log
 # &4 - log (more verbose, almost only wget outputs go here)
 
-#set -x
 set -eE
-trap 'echo "download.sh: An error occured at line $LINENO" >&2; exit 2' ERR
+trap 'echo "download.sh: An unexpected error occured at line $LINENO" >&2; exit 2' ERR
 
 (( $# == 3 ))   # assertion
 
 switches=$1
 path=$2
 videourl=$3
-mkdir -p tmp
-
 
 
 
@@ -56,16 +53,16 @@ xget() {
 parseIqiyi() {
   local L
   while L=$(line); do
-    xget tmp/iqiyi_json "$L"
-    sed 's/.*"\(http[^"]*\)".*/\1\n/' tmp/iqiyi_json
+    xget "$tmpd"/iqiyi_json "$L"
+    sed 's/.*"\(http[^"]*\)".*/\1\n/' "$tmpd"/iqiyi_json
   done
 }
 
 parseTudou() {
   local L
   while L=$(line); do
-    xget tmp/tudou_reply "$L"
-    sed -n 's,.*<f.*>\(http[^<]*\)</f>.*,\1,; s/&amp;/\&/g; p; q' tmp/tudou_reply
+    xget "$tmpd"/tudou_reply "$L"
+    sed -n 's,.*<f.*>\(http[^<]*\)</f>.*,\1,; s/&amp;/\&/g; p; q' "$tmpd"/tudou_reply
   done
 }
 
@@ -91,43 +88,41 @@ parseVideo() {
   url=$(sed -e 's|%|%25|g;s|/|%2F|g;s|:|%3A|g;s|?|%3F|g;s|=|%3D|g;s|&|%26|g' <<< "$url")
   url="http://www.flvcd.com/parse.php?kw=$url&format=real"
 
-  xget tmp/parse_page "$url"
+  xget "$tmpd"/parse_page "$url"
 
   # a quick glance to see if we've got the URLs
   say 'trying simple resolution' >&3
-  qscan_form.rb < tmp/parse_page && return
+  qscan_form.rb < "$tmpd"/parse_page && return
 
   say 'trying general resolution' >&3
   until
     local xdown_redir_url
-    if ! xdown_redir_url=$(scan_form.rb < tmp/parse_page); then
+    if ! xdown_redir_url=$(scan_form.rb < "$tmpd"/parse_page); then
       say 'failed to resolve, please check if the video is valid' >&2
       exit 3
     fi
-    xget tmp/xdown_redir "$xdown_redir_url"
-    (( $(cat tmp/xdown_redir | wc -c) > 84 ))
+    xget "$tmpd"/xdown_redir "$xdown_redir_url"
+    (( $(cat "$tmpd"/xdown_redir | wc -c) > 84 ))
   do
     say 'failed to retrieve data, retrying' >&2
-    xget tmp/parse_page "$url"
+    xget "$tmpd"/parse_page "$url"
   done
-  #local xdown_url=$(sed -n 's,.*\(http://www.flvcd.com/xdown.php?id=[0-9]\+\).*,\2\n,p' tmp/xdown_redir)
-  #xget tmp/xdown "$xdown_url"
+  #local xdown_url=$(sed -n 's,.*\(http://www.flvcd.com/xdown.php?id=[0-9]\+\).*,\2\n,p' "$tmpd"/xdown_redir)
+  #xget "$tmpd"/xdown "$xdown_url"
   # $data_url has no \n
-  local data_url=$(sed -n 's,.*xdown.php?id=\([0-9]\+\).*,http://www.flvcd.com/diy/diy00\1.htm,p' tmp/xdown_redir)
-  xget tmp/data "$data_url"
+  local data_url=$(sed -n 's,.*xdown.php?id=\([0-9]\+\).*,http://www.flvcd.com/diy/diy00\1.htm,p' "$tmpd"/xdown_redir)
+  xget "$tmpd"/data "$data_url"
 
-  case "$(grep '^<F>' tmp/data)" in
+  case "$(grep '^<F>' "$tmpd"/data)" in
     *iqiyi*)
-      # tmp/iqiyi_list is for debugging use
-      sed -n 's/^<C>\(.*\)/\1/p' tmp/data | tee tmp/iqiyi_list | parseIqiyi
+      sed -n 's/^<C>\(.*\)/\1/p' "$tmpd"/data | dbg iqiyi_list | parseIqiyi
       ;;
     *tudou*)
-      # tmp/tudou_list is for debugging use
-      sed -n 's/^<C>\(.*\)/\1/p' tmp/data | tee tmp/tudou_list | parseTudou
+      sed -n 's/^<C>\(.*\)/\1/p' "$tmpd"/data | dbg tudou_list | parseTudou
       ;;
     *youku*|*letv*|*56.com*|*funshion*|*qq.com*|*joy.cn*)
       # some videos are shared by youku and tudou
-      sed -n 's/^<U>\(.*\)/\1/p' tmp/data
+      sed -n 's/^<U>\(.*\)/\1/p' "$tmpd"/data
       ;;
     *)
       say 'source site not supported yet, exiting' >&2
@@ -141,28 +136,29 @@ parseVideo() {
 # otherwise return 0, even if we didn't do anything
 fetch() {
   (( $# == 1 ))   # assertion
-  mkdir -p -- "$1"
-  say "fetching $1" >&3
-  local cont osize
+  local path=$1
+  mkdir -p -- "$path"
+  say "fetching $path" >&3
+  local cont oldsize
 
   declare -i cnt=0
   local url
   while url=$(line); do
-    cnt=cnt+1
-    local file=$1/$cnt
+    cnt+=1
+    local file=$path/$cnt
     if [[ ! -e $file ]]; then
       cont=''; say "downloading block$cnt" >&2
     elif [[ $switches =~ f ]]; then
       cont=''; say "re-downloading block$cnt" >&2
     else
       cont=-c; say "continue downloading block$cnt" >&2
-      osize=$(stat -c %s -- "$file")
+      oldsize=$(stat -c %s -- "$file")
     fi
 
     say "URL: $url" >&3
     wget $cont --progress=dot:mega -U '' -O "$file" -- "$url" 2>&4 || return 1
-    if [[ $cont == -c && $(stat -c %s -- "$file") == $osize ]]
-      then say "skipping block$cnt (file is already complete)" >&3
+    if [[ $cont == -c && $(stat -c %s -- "$file") == $oldsize ]]
+      then say "nothing done for block$cnt (file is already complete)" >&3
       else idle=0
     fi
   done
@@ -171,12 +167,23 @@ fetch() {
 
 
 
+
+if [[ $switches =~ d ]]; then
+  dbg() { tee "tmp/$1"; }
+  mkdir -p tmp && tmpd=tmp
+else
+  dbg() { cat; }
+  tmpd=$(mktemp -d -t "anidown.XXXXXXXXXX") && trap "rm -r '$tmpd'" EXIT
+fi || { say 'failed to create temporary directory' >&2; exit 2; }
+
+set -o pipefail
+
 idle=1
 until
-  parseVideo "$videourl" > tmp/file_list
-  say 'resolution done' >&3
-  fetch "$path" < tmp/file_list
+  parseVideo "$videourl" | dbg file_list | fetch "$path"
 do
+  # SIGINT
+  (( $? == 130 )) && kill -s SIGINT $$
   say 'download failed, resolving again' >&2
 done
 

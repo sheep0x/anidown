@@ -16,20 +16,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 =end
 
-# c[0].ord is for Ruby1.8/1.9 compatibility
 def escape s
-  es = ''
-  s.each_char do |c|
-    es += case c
-            when /\w/, '.'  then c
-            when ' '        then '+'
-            else sprintf('%%%02X', c[0].ord)
-          end
-  end
-  es
+  s.chars.collect do |c|
+    case c
+      when /\w/, '.'  then c
+      when ' '        then '+'
+      else sprintf('%%%02X', c.ord)
+    end
+  end.join
 end
 
-url = String.new # make it global
+url = String.new # make it `global'
 params = []
 
 cnt=0
