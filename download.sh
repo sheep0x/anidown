@@ -134,6 +134,7 @@ parseVideo() {
 
 # return 1 when failed (usually because the resolved URLs expired)
 # otherwise return 0, even if we didn't do anything
+# print "not idle" to &1 if we did something; print nothing if idle
 fetch() {
   (( $# == 1 ))   # assertion
   local path=$1
@@ -159,7 +160,7 @@ fetch() {
     wget $cont --progress=dot:mega -U '' -O "$file" -- "$url" 2>&4 || return 1
     if [[ $cont == -c && $(stat -c %s -- "$file") == $oldsize ]]
       then say "nothing done for block$cnt (file is already complete)" >&3
-      else idle=0
+      else echo 'not idle'
     fi
   done
 }
@@ -178,16 +179,20 @@ fi || { say 'failed to create temporary directory' >&2; exit 2; }
 
 set -o pipefail
 
-idle=1
+idle_report=''
 until
-  parseVideo "$videourl" | dbg file_list | fetch "$path"
+  idle_report+=$(parseVideo "$videourl" | dbg file_list | fetch "$path")
 do
   # SIGINT
   (( $? == 130 )) && kill -s SIGINT $$
   say 'download failed, resolving again' >&2
 done
 
-(( idle )) && say "nothing done for $path (files are already complete)" >&2
-exit $idle
+if [[ -z $idle_report ]]; then
+  say "nothing done for $path (files are already complete)" >&2
+  exit 1
+else
+  exit 0
+fi
 
 # vim: sw=2 sts=2
