@@ -64,26 +64,46 @@ EOF
 
 # ==================== parse ARGV ====================
 abort() {
-  echo 'dwrapper.sh: wrong arguments'
-  printHelp
+  echo "dwrapper.sh: $1"
+  echo "Try \`dwrapper.sh --help' for more information"
   exit 2
 } >&2
 
 # variable `url' is defined iff URL is supplied in cmdline arguments
+add_url() {
+  [[ -v url ]] && abort 'too many URLs'
+  url=$1
+}
 
-while (($#)); do
-  case "$1" in
+while (( $# > 0 )); do
+  v=$1
+  shift
+
+  # resetting positional arguments could be slow, but other methods of handling
+  # argv are more complex and error-prone
+  if [[ $v =~ ^-[^-].+$ ]]; then
+    if [[ ${v:1:1} =~ [oL] ]]; then
+      set -- "${v:2}" "$@"
+    elif [[ ! ${v:2:1} == - ]]; then
+      set -- "-${v:2}" "$@"
+    else
+      abort "invalid option '-'"
+    fi
+    v=${v::2}
+  fi
+
+  case "$v" in
     -h|--help)
       printHelp
       exit 0
       ;;
     -o|--output)
-      (( $# >= 2 )) || abort
-      path=$2
+      (( $# >= 1 )) || abort "option '-o' requires an argument"
+      path=$1
       shift
       ;;
     --output=*)
-      path=${1#*=};;
+      path=${v#*=};;
     -c|--continue)
       switches+=c;;
     --no-continue)
@@ -101,12 +121,12 @@ while (($#)); do
     -V|--very-verbose)
       verbosity=3;;
     -L|--logfile)
-      (( $# >= 2 )) || abort
-      logfile=$2
+      (( $# >= 1 )) || abort "option '-L' requires an argument"
+      logfile=$1
       shift
       ;;
     --logfile=*)
-      logfile=${1#*=};;
+      logfile=${v#*=};;
     -O|--overwrite-log)
       logIOflag=w;;
     -A|--append-log)
@@ -115,12 +135,15 @@ while (($#)); do
       switches+=d;;
     --no-debug)
       switches=${switches//d};;
+    --)
+      for url in "$@"; do add_url "$url"; done
+      break
+      ;;
+    -*)
+      abort "invalid option '$v'";;
     *)
-      # there's no need to handle ``--''
-      [[ -v url ]] && abort
-      url=$1
+      add_url "$v";;
   esac
-  shift
 done
 
 # ==================== output redirections ====================
@@ -143,7 +166,7 @@ exec 5>&-
   binpath=${0%/*}
   if [[ ! $binpath =~ : ]] && binpath=$( (CDPATH='' cd -- "$binpath" && echo -n "$PWD") )
     then export PATH="$binpath:$PATH"
-    else echo 'dwrapper.sh: failed to set PATH'; exit 2
+    else echo 'dwrapper.sh: failed to set PATH' >&2; exit 2
   fi
 }
 

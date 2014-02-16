@@ -18,11 +18,16 @@ limitations under the License.
 
 # watch for new episodes of animes in watchlist
 
+def abort2 msg
+  $stderr.puts "#{$0}: #{msg}"
+  exit 2
+end
+
 # ==================== handle argv ====================
 usage = <<EOF
-Usage: #{$0} [OPTIONS]
+Usage: #{$0} [OPTIONS] [--] [FILE]...
 
-Check new episodes in animes specified in watchlist.
+Check new episodes in animes specified in FILE(s) (default: watchlist).
 
 -h --help
         Display this message.
@@ -44,12 +49,22 @@ The following commandline arguments will be passed to dwrapper.sh:
 EOF
 
 argv = []
-outpath = '.'
+argf = []
+outpath = ?.
 logpath = nil
 debug=$DEBUG
 
 until ARGV.empty?
-  v = ARGV.shift
+  v = ARGV.shift.dup    # unfreeze it
+  if v.length > 2 && v[0]==?- && v[1]!=?-
+    if %w[o L].include? v[1]
+      ARGV.unshift(v.slice!(2..-1))
+    else
+      # XXX Don't use v.index(?-, 2), because -qo- is valid (--quiet --output=-)
+      v[2]==?- && abort2("invalid option '-'")
+      ARGV.unshift(?- + v.slice!(2..-1))
+    end
+  end
   case v
     when '-h', '--help'
       print usage
@@ -59,9 +74,9 @@ until ARGV.empty?
     when '--no-debug'
       debug=false
     when /(?<=^--output=).*$/,  '-o', '--output'
-      outpath = $& || ARGV.shift
+      (outpath = $& || ARGV.shift) || abort2("option '-o' requires an argument")
     when /(?<=^--logpath=).*$/, '-L', '--logpath'
-      logpath = $& || ARGV.shift
+      (logpath = $& || ARGV.shift) || abort2("option '-L' requires an argument")
     when *%w( -c --continue
               -f --force
               -q --quiet
@@ -72,13 +87,19 @@ until ARGV.empty?
               --no-verbose
             )
       argv << v
+    when '--'
+      argf += ARGV
+      break
     else
-      $stderr.puts "#{$0}: wrong arguments"
-      exit 2
+      if v[0] == ?- && v != ?-
+        abort2 "invalid option '#{v}'"
+      end
+      argf.push(v)
   end
 end
 
 argv << (debug ? '--debug' : '--no-debug')
+ARGV.replace(argf.empty? ? %w[watchlist] : argf)
 
 # ==================== preparation ====================
 require 'fileutils'
@@ -93,25 +114,26 @@ begin
     trap('EXIT') { FileUtils.rm_r(tmpd) }
   end
 rescue
-  $stderr.puts "#{$0}: failed to create temporary directory"
-  exit 2
+  abort2 'failed to create temporary directory'
 end
 
 # XXX we don't handle relative path, so be careful not to cd
 if $0.include?(?/)
   binpath = File.dirname($0)
-  ENV['PATH'] = binpath + ':' + ENV['PATH']
+  ENV['PATH'] = binpath + ?: + ENV['PATH']
   $: << binpath
 end
 
 # ==================== watchlist preparation ====================
-$stdin.reopen('watchlist')
-
 watched = Hash.new { |h, k| h[k] = {} }
 
-while $stdin.gets('')
-  a, s, site = $_.split("\n")
-  watched[a][s] = site
+begin
+  while ARGF.gets('')
+    a, s, site = $_.split("\n")
+    watched[a][s] = site
+  end
+rescue
+  abort2 'failed to read watchlist(s)'
 end
 
 # detect name conflict
@@ -138,7 +160,7 @@ watched.each_pair do |anime, seasons|
   time = Time.now.strftime('%F %T')
   logfile = logpath ? "#{logpath}/#{time}_#{anime}" : '/dev/null'
 
-  system *%W{wget -O #{tmpd}/search_result http://www.soku.com/t/nisearch/#{anime}}, :err=>[logfile, 'a']
+  system *%W{wget -O #{tmpd}/search_result http://www.soku.com/t/nisearch/#{anime}}, :err=>[logfile, ?a]
   exit 130 if $?.termsig == 2 # SIGINT
 
   puts "scanning anime #{anime}"
@@ -153,7 +175,7 @@ watched.each_pair do |anime, seasons|
     puts "found source #{site}"
 
     # open(...).puts(...) won't flush the output
-    open("#{tmpd}/video_list", 'w') {|f| f.puts(urls)}
+    open("#{tmpd}/video_list", ?w) {|f| f.puts(urls)}
     system *%W{dwrapper.sh -o #{outpath}/#{anime}/#{season} -L #{logfile} -A}, *argv, :in=>"#{tmpd}/video_list", :err=>:out
 
     case $?.exitstatus || $?.termsig+128
@@ -166,8 +188,7 @@ watched.each_pair do |anime, seasons|
       when 130
         exit 130 # SIGINT
       else
-        $stderr.puts "#{$0}: An error occured when running downloader"
-        exit 2
+        abort2 'an error occured when running downloader'
     end
   end
 end
