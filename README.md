@@ -1,3 +1,10 @@
+# **This repo is abandoned.** It may or may not work.
+The next generation of Anidown will be pure Ruby code, but it's unlikely to be released until at least 1 year later (end of 2015). The new version will be a pure library, and a basic app will be provided in a seperated repo. The library will focus on providing unofficial API for ACGN-related websites. This includes querying the server for metadata, and finding the real data (if hidden or obfuscated), but the actual downloading/streaming is no longer covered unless necessary. I'm also considering generalizing the project to cover non-ACGN websites.
+
+FYI: For non-Chinese video websites, libquvi could be a better choice.
+
+
+
 Anidown
 =======
 
